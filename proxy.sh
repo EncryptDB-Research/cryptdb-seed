@@ -2,7 +2,6 @@ export TERM=xterm
 export CRYPTDB_MODE=multi
 export ENC_BY_DEFAULT=false
 export EDBDIR=/opt/cryptdb
-#export CRYPTDB_SHADOW=/tmp/shadow-db
 export CRYPTDB_PROXY_DEBUG=tru
 export LD_LIBRARY_PATH=$EDBDIR/obj/
 exec $EDBDIR/bins/proxy-bin/bin/mysql-proxy \
