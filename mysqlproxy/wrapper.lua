@@ -17,7 +17,7 @@ total_fake = 0
 -- loads table frequency data by parsing the file 
 -- stores values in the freq variable
 function load_meta()
-    local file = io.open('mysqlproxy/freqs.txt', 'r')
+    local file = assert(io.open('mysqlproxy/freqs.txt', 'r'))
     local line_key = ""    
     for line in file:lines() do
         if string.sub(line, 1, 2) == "  " then
@@ -83,7 +83,7 @@ end
 
 -- Smooths out data on insert queries
 -- so that there's a flat histogram of the each value in a column
-function lazy_active_smooth(query)
+function smooth(query)
     local cols = {} 
     local vals = {}
     local lower = string.lower(query)
@@ -97,6 +97,9 @@ function lazy_active_smooth(query)
         end
     end
 
+    -- tests that the database value is not nil
+    assert(database)
+
     -- looks for `insert` keyword to parse and modify the insert query
     if string.sub(lower, 1, 6) == 'insert' then
         local file = io.open('mysqlproxy/freqs.txt', 'w')    
@@ -105,6 +108,9 @@ function lazy_active_smooth(query)
         local tablename = string.gsub(string.match(query, "(%w-%()"), "(%()", "")
         local index = 0
         
+        -- test we got the tablename
+        assert(tablename)
+
         -- splits the query by parentheses
         for w in string.gmatch(query, "(%(.-%))") do
 
@@ -200,6 +206,8 @@ function lazy_active_smooth(query)
     print("final query", new_query)
 
     -- returns modifed query
+    -- tests new query is not empty
+    assert(new_query)
     return new_query
 end
 
@@ -308,7 +316,7 @@ function read_query_real(packet)
     end
     
     -- flat histogram in case of insertions
-    query = lazy_active_smooth(query)
+    query = smooth(query)
     
     if string.byte(packet) == proxy.COM_INIT_DB or
        string.byte(packet) == proxy.COM_QUERY then
