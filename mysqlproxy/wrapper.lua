@@ -17,13 +17,8 @@ total_fake = 0
 -- loads table frequency data by parsing the file 
 -- stores values in the freq variable
 function load_meta()
-    local file = assert(io.open('mysqlproxy/freqs.txt', 'r'))
+    local file = assert(io.open('mysqlproxy/freqs', 'r'))
     local line_key = ""    
-    if file == nil then
-        file = io.open('mysqlproxy/freqs.txt', 'w')
-        file:close()
-        file = io.open('mysqlproxy/freqs.txt', 'r')
-    end
         
     for line in file:lines() do
         if string.sub(line, 1, 2) == "  " then
@@ -106,9 +101,10 @@ function smooth(query)
     -- tests that the database value is not nil
     assert(database)
 
+    print(lower)
     -- looks for `insert` keyword to parse and modify the insert query
     if string.sub(lower, 1, 6) == 'insert' then
-        local file = io.open('mysqlproxy/freqs.txt', 'w')    
+        local file = io.open('mysqlproxy/freqs', 'w')    
         
         -- gets the table name
         local tablename = string.gsub(string.match(query, "(%w-%()"), "(%()", "")
@@ -148,6 +144,7 @@ function smooth(query)
                 local val = vals[k]
                 local key = database.."_"..tablename.."_"..col
                 
+                print(key)
                 -- inititate the freq value
                 if freq[key] == nil then
                     freq[key] = {}
@@ -166,7 +163,7 @@ function smooth(query)
                         value_query = value_query..val..","
                     end
             
-                    col_query = col_query.."fakse) "
+                    col_query = col_query.."fake) "
                     new_query = "INSERT INTO "..tablename..col_query.."VALUES "..value_query.."0)"
 
                     -- if the frequency value does not exist then, upadte to the currrent max count
@@ -205,7 +202,7 @@ function smooth(query)
         
         total_fake = total_fake + to_insert
 
-        file:write('total_fake'..' '..total_fake..'\n')
+        -- file:write('total_fake'..' '..total_fake..'\n')
         file:close()    
     end
 
