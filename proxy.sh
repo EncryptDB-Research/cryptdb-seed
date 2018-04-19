@@ -1,3 +1,5 @@
+# created by Joannier Pinales
+
 export TERM=xterm
 export CRYPTDB_MODE=multi
 export ENC_BY_DEFAULT=false
