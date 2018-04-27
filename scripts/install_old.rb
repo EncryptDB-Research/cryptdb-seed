@@ -27,19 +27,17 @@ end
 
 # NOTE: For whatever reason we fail to get the correct exit code when
 # apt-get fails; and execution continues per-normal.
-# even though mysql-server is already installed if running the Docker container
-# we keep it in the script in the case is being run under a VM
 def get_pkgs
     p_puts "Retrieving packages..."
 
     pkg_shell = ShellDoer.new("~")
     pkg_shell.>(%q{
-        sudo apt-get install -y gawk liblua5.1-0-dev libntl-dev  mysql-server \
-                libmysqlclient-dev libssl-dev libbsd-dev                      \
-                libevent-dev libglib2.0-dev libgmp-dev                        \
-                libaio-dev automake                                           \
-                gtk-doc-tools flex cmake libncurses5-dev                      \
-                g++ make
+        sudo apt-get install gawk liblua5.1-0-dev libntl-dev         \
+                libmysqlclient-dev libssl-dev libbsd-dev        \
+                libevent-dev libglib2.0-dev libgmp-dev          \
+                mysql-server libaio-dev automake                \
+                gtk-doc-tools flex cmake libncurses5-dev        \
+                bison g++ make
     })
 end
 
@@ -92,7 +90,7 @@ def fn(cdb_path, in_make_v=nil, in_gcc_v=nil)
     mp_shell = ShellDoer.new(proxy_path)
     proxy_install_path = File.join(bins_path, "proxy-bin")
     mp_shell.>("./autogen.sh")
-    mp_shell.>("./configure CFLAGS='-g3' --enable-maintainer-mode --with-lua=lua5.1 --prefix=\"#{proxy_install_path}\"")
+    mp_shell.>("./configure --enable-maintainer-mode --with-lua=lua5.1 --prefix=\"#{proxy_install_path}\"")
     mp_shell.>("make")
     mp_shell.>("make install")
     mp_shell.>("rm -rf #{proxy_path}")
@@ -156,7 +154,7 @@ def fn(cdb_path, in_make_v=nil, in_gcc_v=nil)
     cryptdb_shell.>("mkdir #{shadow_path}")
 
     # Give the user access to all the stuff we created.
-    cryptdb_shell.>("chown -R root #{cryptdb_path}")
+    cryptdb_shell.>("chown -R #{Etc.getlogin} #{cryptdb_path}")
 
     # remind the user about EDBDIR
     p_puts "You must do: export EDBDIR=/full/path/to/cryptdb/ before running cryptdb; we recommend putting it into your .bashrc"
